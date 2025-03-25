@@ -35,7 +35,10 @@ int main(void){
 ```
 
 ## Polimorfizm statyczny
+Wykorzystaniem szablonów, do wywołania funkcji na obiektach, które mają wspólną nazwę funkcji, typ jest dedykowany podczas wywołania funkcji, podczas kompilaci
 
 ## Klasa abstrakcyjna
+Klasa, której nie można zainstancjilazować. Ma metody bez definicji, tylko deklaracje
 
 ## Funkcja wirtualna
+Funckja, za pomocą, która można przeciążać w potomnych klasach.

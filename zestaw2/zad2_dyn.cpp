@@ -21,6 +21,7 @@ public:
 		cout << "Robie cos innego" << endl;
 	}
 };
+
 int main(void){
 	Poli1* cos1 = new Poli1();
 	Poli2* cos2 =  new Poli2();
