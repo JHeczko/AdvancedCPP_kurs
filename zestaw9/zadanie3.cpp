@@ -16,3 +16,45 @@
 
 using namespace std;
 
+struct Song{
+  string name;
+  string artist;
+
+  Song(string name, string artist):name(name), artist(artist){
+    cout << "Witam z " << this->name << endl;
+  }
+
+  ~Song(){
+    cout << "Kasacja z " << this->name << endl;
+  }
+};
+
+unique_ptr<Song> songFactory(string name, string artist){
+  return make_unique<Song>(name, artist);
+};
+
+int main() {
+  vector<unique_ptr<Song>> songs;
+
+  cout << "<<<<<< KONSTRUKTORY >>>>>>\n\n";
+  songs.push_back(songFactory("Song1", "Artist1"));
+  songs.push_back(songFactory("Song2", "Artist2"));
+  songs.push_back(songFactory("Song3", "Artist3"));
+  songs.push_back(songFactory("Song4", "Artist4"));
+  songs.push_back(songFactory("Song5", "Artist5"));
+  songs.push_back(songFactory("Song6", "Artist6"));
+  songs.push_back(songFactory("Song7", "Artist7"));
+
+
+
+  // for(auto a : songs) {
+  //
+  // }
+  cout << "\n\n<<<<<< LOOP >>>>>>\n\n";
+  for(auto& a : songs) {
+    cout << "Pozdro od " << a->name << endl;
+  }
+
+  cout << "\n\n<<<<<< DESTRUKTORY >>>>>>\n\n";
+  return 0;
+}
