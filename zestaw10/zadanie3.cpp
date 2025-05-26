@@ -52,3 +52,11 @@ void example_sort() {
 
 	std::sort(std::execution::par, data.begin(), data.end());
 }
+
+int main() {
+  example_for_each();
+  example_transform();
+  example_count_if();
+  example_reduce();
+  example_sort();
+}
