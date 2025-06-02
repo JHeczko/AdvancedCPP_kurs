@@ -39,7 +39,8 @@ public:
 // dla testu klasa
 class NonCopyable {
 public:
-  //NonCopyable& operator=(const NonCopyable&) = delete;
+  //s
+  // NonCopyable& operator=(const NonCopyable&) = delete;
 };
 
 int main() {

@@ -23,7 +23,7 @@ void describe(T t){
 };
 
 int main() {
-  describe(42);               // Typ całkowity
-  describe(3.14);             // Typ zmiennoprzecinkowy
-  describe(std::string("Elo zelo"));// Tekst
+  describe(42);
+  describe(3.14);
+  describe(std::string("Elo zelo"));
 }
