@@ -1,6 +1,6 @@
 # Singleton
 **Opis i funkcja wzorca:**
-Wzorzec projektowy Singleton zapewnia, że dana klasa ma tylko jedną instancję, i dostarcza globalny punkt dostępu do tej instancji. Singleton łączy w sobie kontrolę instancji oraz globalny dostęp, co czyni go przydatnym tam, gdzie potrzebny jest jeden wspólny zasób lub punkt dostępu (np. konfiguracja, logger, sterownik bazy danych).
+Kreacyjny wzorzec ten zapewnia, ze klasa ma tylko jedna instancje w calym kodzie, ponadto jest ona dostepna grlobalnei
 
 **Zastosowanie i problemy, które rozwiązuje:**
 
@@ -15,7 +15,7 @@ Wzorzec projektowy Singleton zapewnia, że dana klasa ma tylko jedną instancję
 * Połączenia z bazą danych
 * Sterowniki urządzeń
 
-**Implementacja w C++ (wersja thread-safe od C++11):**
+**Implementacja w C++:**
 
 ```cpp
 #include <iostream>

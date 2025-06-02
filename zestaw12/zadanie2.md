@@ -1,8 +1,6 @@
 # Obserwator
-**Wzorzec projektowy Obserwator w C++**
-
 **Opis i funkcja wzorca:**
-Wzorzec projektowy Obserwator (Observer) definiuje zależność jeden-do-wielu między obiektami. Gdy obiekt (nazywany "subiektem" lub "obiektem obserwowanym") zmienia swój stan, automatycznie powiadamia wszystkie obiekty zależne (obserwatorów), które są zarejestrowane.
+Wzorzec behawioralny, który umożliwia wprowadzenie tak zwanych subskrypcji, gdzie dodajemy obiekty subskrybujące do obiektu publikującego(subskrybenci maja odpowiednia metodę `notify`), ktory to kiedy zajdzie taka sytuacja, przechodzi po swoich subskrybentach i wywoluje na nich okresloną metodę powiadamiającą.
 
 **Zastosowanie i problemy, które rozwiązuje:**
 
