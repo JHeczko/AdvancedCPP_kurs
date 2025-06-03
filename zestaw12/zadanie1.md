@@ -17,7 +17,7 @@ Kreacyjny wzorzec ten zapewnia, ze klasa ma tylko jedna instancje w calym kodzie
 
 **Implementacja w C++:**
 
-```cpp
+```c++
 #include <iostream>
 #include <mutex>
 
@@ -59,13 +59,6 @@ int main() {
 }
 ```
 
-**Wyjaśnienie kodu:**
-
-* `getInstance()` zwraca odniesienie do tej samej statycznej instancji obiektu.
-* Konstruktor jest prywatny, co uniemożliwia tworzenie nowych obiektów klasy z zewnątrz.
-* Usunięto kopiowanie i przypisanie, aby nie dało się duplikować instancji.
-* Od C++11 statyczna zmienna lokalna w funkcji jest tworzona w sposób bezpieczny w kontekście wielowątkowości.
-
 **Zalety:**
 
 * Prosta kontrola instancji
@@ -77,6 +70,3 @@ int main() {
 * Może prowadzic do ukrytych zależności globalnych
 * Trudniejszy do testowania (np. w testach jednostkowych)
 * W niektórych przypadkach może wprowadzać problemy z zarządzaniem cyklem życia obiektu
-
-**Podsumowanie:**
-Singleton to potężny, ale wymagający ostrożności wzorzec. Najlepiej stosować go w przypadkach, gdzie jednoznacznie potrzebna jest tylko jedna instancja klasy i nie ma potrzeby tworzenia wielu obiektów tej samej klasy.

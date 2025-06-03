@@ -6,7 +6,6 @@ Wzorzec behawioralny, który umożliwia wprowadzenie tak zwanych subskrypcji, gd
 
 * Oddziela logikę zmiany stanu od logiki reagowania na tę zmianę.
 * Pozwala wielu obiektom nasłuchiwać zmian jednego źródła.
-* Zapewnia spójność danych między komponentami bez silnego powiązania między nimi (luźne sprzężenie).
 
 **Typowe przypadki użycia:**
 
@@ -17,102 +16,98 @@ Wzorzec behawioralny, który umożliwia wprowadzenie tak zwanych subskrypcji, gd
 
 **Implementacja w C++ (z użyciem interfejsów):**
 
-```cpp
+```c++
 #include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
 
-// Interfejs Obserwatora
-class Observer {
-public:
-    virtual void update(const std::string& message) = 0;
-    virtual ~Observer() {}
+// interfejs subskrybujacego
+class Subscriber{
+  public:
+    virtual void receive() = 0;
 };
 
-// Interfejs Obiektu Obserwowanego (Subject)
-class Subject {
-public:
-    void attach(Observer* observer) {
-        observers.push_back(observer);
-    }
 
-    void detach(Observer* observer) {
-        observers.erase(std::remove(observers.begin(), observers.end(), observer), observers.end());
-    }
-
-    void notify(const std::string& message) {
-        for (Observer* observer : observers) {
-            observer->update(message);
-        }
-    }
-
+class MessegeManager{
 private:
-    std::vector<Observer*> observers;
+  std::vector<Subscriber*> subscribers;
+
+public:
+  	void notify(){
+      for (Subscriber* subs:subscribers){
+        subs->receive();
+      }
+  	}
+
+    void attach(Subscriber* subscriber){
+			subscribers.push_back(subscriber);
+    };
+
+    void detach(Subscriber* subscriber){
+      subscribers.erase(std::find(subscribers.begin(), subscribers.end(), subscriber));
+    };
+
+    MessegeManager(){};
+    ~MessegeManager(){};
 };
 
-// Konkretna implementacja Obserwatora
-class User : public Observer {
-public:
-    User(const std::string& name) : name(name) {}
+class ProductMenager {
+  public:
+    MessegeManager* messegeManager;
 
-    void update(const std::string& message) override {
-        std::cout << "Użytkownik " << name << " otrzymał powiadomienie: " << message << std::endl;
+    void newProductAdded() {
+        // jakas logika
+        messegeManager->notify();
     }
 
+    ProductMenager():messegeManager(new MessegeManager()){}
+    ~ProductMenager(){}
+};
+
+class ExtendedSubscriber:public Subscriber{
 private:
-    std::string name;
-};
-
-// Przykładowy Obiekt Obserwowany (np. Kanał powiadomień)
-class NotificationChannel : public Subject {
+  std::string name;
 public:
-    void postMessage(const std::string& message) {
-        std::cout << "[Kanał] Nowa wiadomość: " << message << std::endl;
-        notify(message);
-    }
+    void receive(){
+      std::cout << "Mam wiadomosc " << this->name << std::endl;
+    };
+
+    ExtendedSubscriber(std::string name):name(name){};
 };
 
-// Przykład użycia
-int main() {
-    NotificationChannel channel;
+class ExtendedSubscriberEmail:public Subscriber{
+private:
+  std::string name;
+public:
+  void receive(){
+    std::cout << "Mam wiadomosc email" << this->name << std::endl;
+  };
 
-    User user1("Anna");
-    User user2("Tomasz");
-    User user3("Zofia");
+  ExtendedSubscriberEmail(std::string name):name(name){};
+};
 
-    channel.attach(&user1);
-    channel.attach(&user2);
+int main(){
+  ExtendedSubscriber* subscriber = new ExtendedSubscriber("1");
+  ExtendedSubscriber* subscriber2 = new ExtendedSubscriber("2");
+  ExtendedSubscriber* subscriber3 = new ExtendedSubscriber("3");
+  ExtendedSubscriberEmail* subscriber4 = new ExtendedSubscriberEmail("4");
 
-    channel.postMessage("Nowa aktualizacja systemu dostępna!");
+  ProductMenager* messege = new ProductMenager();
 
-    channel.attach(&user3);
-    channel.postMessage("Spotkanie zespołu o 10:00");
+  messege->messegeManager->attach(subscriber);
+  messege->messegeManager->attach(subscriber2);
+  messege->messegeManager->attach(subscriber3);
+  messege->messegeManager->attach(subscriber4);
 
-    channel.detach(&user1);
-    channel.postMessage("Test powiadomień po wypisaniu");
-
-    return 0;
+  messege->newProductAdded();
 }
 ```
-
-**Wyjaśnienie działania:**
-
-* `NotificationChannel` to obserwowany obiekt (Subject).
-* `User` to konkretni obserwatorzy reagujący na wiadomości.
-* Obserwatorzy są dodawani za pomocą `attach`, usuwani przez `detach`, a informowani przez `notify`.
-* Zmiana stanu (np. nowa wiadomość) powoduje automatyczne powiadomienie wszystkich obserwatorów.
-
 **Zalety:**
 
-* Luźne powiązania między komponentami
+* Zasada otwarte/zamkniete, mozna wprawadzac do kodu nowe typy subskrybentow, bez zmieniania logiki kodu publikujacego
 * Możliwość dynamicznego dodawania/usuwania obserwatorów
-* Reaktywna architektura — propagacja zmian
+* Reaktywna architektura
+* Mozna utworzyc zwiazek pomiezy obiektami w trakcie dzialania programu
 
 **Wady:**
 
 * Możliwa złożoność zarządzania cyklem życia obiektów (pamięć)
 * Możliwość powstawania błędów trudnych do debugowania (np. powiadomienia po usunięciu obserwatora)
-
-**Podsumowanie:**
-Wzorzec Obserwator jest fundamentem wielu systemów zdarzeniowych i GUI. Pozwala tworzyć systemy reagujące na zmiany w sposób skalowalny i czytelny, bez silnego powiązania między komponentami.

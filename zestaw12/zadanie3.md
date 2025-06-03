@@ -2,7 +2,7 @@
 **Wzorzec projektowy Dekorator w C++**
 
 **Opis i funkcja wzorca:**
-Wzorzec projektowy Dekorator (ang. Decorator) pozwala na dynamiczne rozszerzanie funkcjonalności obiektów bez modyfikacji ich kodu. Osiąga się to przez opakowanie oryginalnego obiektu w nowy obiekt dekorujący, który dodaje nowe zachowania przed lub po delegacji do oryginalnego obiektu.
+Strukturalny wzorzec, zwany tez nakladką albo wrapperem. Charakteryzuje go to, ze pozwala on dodawac nowe funckjonalnosc/obowiazki obiektom, za pomoca umieszczania ich kolejna, jakby rekurecyjne w wrapperach, ktore dekorują go w nowe funkcjonalnosci. Poniewaz duza cczesc obiektowych jezykow, nie pozwala na dziediczenie wielkrotne, to trzeba radzic sobie za pomoca tak zwanej agregacji. Zmiany będą kaskadowo propagowane w dół
 
 **Zastosowanie i problemy, które rozwiązuje:**
 
@@ -16,115 +16,83 @@ Wzorzec projektowy Dekorator (ang. Decorator) pozwala na dynamiczne rozszerzanie
 * Logowanie, autoryzacja, buforowanie
 * Kompresja / szyfrowanie danych
 
-**Struktura UML:**
-
-* `Component` – interfejs bazowy
-* `ConcreteComponent` – podstawowy obiekt
-* `Decorator` – klasa bazowa dekoratora (dziedziczy po `Component`)
-* `ConcreteDecorator` – dodaje nowe funkcjonalności
-
-**Implementacja w C++ (dekorowanie strumienia):**
-
-```cpp
+```c++
 #include <iostream>
-#include <memory>
 
-// Komponent bazowy
-class DataSource {
-public:
-    virtual void writeData(const std::string& data) = 0;
-    virtual std::string readData() = 0;
-    virtual ~DataSource() = default;
+using namespace std;
+
+// bazowy interfejs wiadomosci
+class Messege{
+  public:
+    virtual string getMess()=0;
+    ~Messege()=default;
 };
 
-// Konkretna implementacja komponentu
-class FileDataSource : public DataSource {
-public:
-    void writeData(const std::string& data) override {
-        buffer = data; // symulacja zapisu do pliku
-        std::cout << "[File] Zapisano: " << data << std::endl;
-    }
-
-    std::string readData() override {
-        return buffer;
-    }
-
-private:
-    std::string buffer;
+class SimpleMessege : public Messege {
+  public:
+    SimpleMessege()=default;
+    string getMess(){
+      return "Messege";
+    };
 };
 
-// Dekorator bazowy
-class DataSourceDecorator : public DataSource {
-public:
-    DataSourceDecorator(std::shared_ptr<DataSource> wrappee) : wrappee(wrappee) {}
-
-    void writeData(const std::string& data) override {
-        wrappee->writeData(data);
-    }
-
-    std::string readData() override {
-        return wrappee->readData();
-    }
-
+class BaseDecarator:public Messege {
 protected:
-    std::shared_ptr<DataSource> wrappee;
-};
-
-// Konkretna dekoracja: dodanie kompresji (symulacja)
-class CompressionDecorator : public DataSourceDecorator {
+  Messege* messege;
 public:
-    CompressionDecorator(std::shared_ptr<DataSource> wrappee) : DataSourceDecorator(wrappee) {}
-
-    void writeData(const std::string& data) override {
-        std::string compressed = "[COMPRESSED]" + data;
-        wrappee->writeData(compressed);
-    }
-
-    std::string readData() override {
-        std::string data = wrappee->readData();
-        return data.substr(12); // usunięcie prefiksu [COMPRESSED]
-    }
+    BaseDecarator(Messege* messege):messege(messege){};
+    string getMess(){
+      return messege->getMess();
+    };
 };
 
-// Konkretna dekoracja: dodanie szyfrowania (symulacja)
-class EncryptionDecorator : public DataSourceDecorator {
+class AddBracketsDecorator:public BaseDecarator {
+  public:
+    AddBracketsDecorator(Messege* messege):BaseDecarator(messege){};
+
+    string getMess(){
+      return messege->getMess()+"<>";
+    };
+};
+
+class AddSmthDecorator:public BaseDecarator {
+  public:
+    AddSmthDecorator(Messege* messege):BaseDecarator(messege){};
+    string getMess(){
+      return messege->getMess()+"SMTH";
+    };
+};
+
+
+class AddSmthElseDecorator:public BaseDecarator {
 public:
-    EncryptionDecorator(std::shared_ptr<DataSource> wrappee) : DataSourceDecorator(wrappee) {}
-
-    void writeData(const std::string& data) override {
-        std::string encrypted = "[ENCRYPTED]" + data;
-        wrappee->writeData(encrypted);
-    }
-
-    std::string readData() override {
-        std::string data = wrappee->readData();
-        return data.substr(11); // usunięcie prefiksu [ENCRYPTED]
-    }
+  AddSmthElseDecorator(Messege* messege):BaseDecarator(messege){};
+  string getMess(){
+    return messege->getMess()+"else";
+  };
 };
 
-// Przykład użycia
-int main() {
-    std::shared_ptr<DataSource> file = std::make_shared<FileDataSource>();
-    std::shared_ptr<DataSource> encrypted = std::make_shared<EncryptionDecorator>(file);
-    std::shared_ptr<DataSource> compressed = std::make_shared<CompressionDecorator>(encrypted);
+int main(){
+  Messege* messege = new SimpleMessege();
 
-    compressed->writeData("Ważne dane użytkownika");
-    std::cout << "Odczytane dane: " << compressed->readData() << std::endl;
+  BaseDecarator* decorator = new BaseDecarator(messege);
+  cout << decorator->getMess() << endl;
 
-    return 0;
+  decorator= new AddBracketsDecorator(decorator);
+  cout << decorator->getMess() << endl;
+
+  decorator = new AddSmthDecorator(decorator);
+  cout << decorator->getMess() << endl;
+
+  decorator = new AddSmthElseDecorator(decorator);
+  cout << decorator->getMess() << endl;
 }
 ```
-
-**Wyjaśnienie działania:**
-
-* `FileDataSource` to podstawowy komponent.
-* `CompressionDecorator` i `EncryptionDecorator` to dodatkowe funkcjonalności.
-* Obiekty dekoratorów można łączyć w łańcuch (np. kompresja + szyfrowanie).
 
 **Zalety:**
 
 * Elastyczne rozszerzanie funkcjonalności
-* Unikanie przeciążonego dziedziczenia
+* Unikanie wykładniczego wzrostu liczby klas
 * Możliwość łączenia wielu dekoratorów dynamicznie
 
 **Wady:**
