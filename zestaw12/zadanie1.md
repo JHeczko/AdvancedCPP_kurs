@@ -1,6 +1,6 @@
 # Singleton
 **Opis i funkcja wzorca:**
-Kreacyjny wzorzec ten zapewnia, ze klasa ma tylko jedna instancje w calym kodzie, ponadto jest ona dostepna grlobalnei
+Kreacyjny wzorzec ten zapewnia, ze klasa ma tylko jedna instancje w calym kodzie, ponadto jest ona dostepna grlobalnei. Ma pryawtny konstruktor
 
 **Zastosowanie i problemy, które rozwiązuje:**
 
@@ -62,11 +62,20 @@ int main() {
 **Zalety:**
 
 * Prosta kontrola instancji
-* Oszczędność zasobów
+* Globalny dostep do jednej instancji
+* Oszczędność zasobów, obiekt jest inicjalizowany dopiero wtedy kiedy to konieczne
 * Zapewnienie spójności danych
 
 **Wady:**
 
-* Może prowadzic do ukrytych zależności globalnych
-* Trudniejszy do testowania (np. w testach jednostkowych)
+* Łamie zasade pojedynczej odpowiedzialnosci
+* Trzeba uwazac w srodowisku wielowatkowym, zeby nie tworzyc wielu roznych instancji
+* Moze sie zdarzyc, ze zamaskujemy nieporzadane wlasciwosci, np.: komponenty beda wiedziec o sobie za duzo
+* Trudniejszy do testowania (np. w testach jednostkowych, bo wiele testow bazuje na dziedziczeniu i robieniu obiektow atrap, a tutaj brak konstrukroa publicznego/chronionego wiec nie ma jak, ale mozna jakos to ominac, choc trzeba sie nagimnastykowac)
 * W niektórych przypadkach może wprowadzać problemy z zarządzaniem cyklem życia obiektu
+
+> [!NOTE] Pojedyncza odpowiedzalnosc
+> Mowi, o tym, ze kazda klasa ma spelniac tylko jedno zadanie, kazda klasa ma wiec
+> 1. jeden okreslony jasno cel
+> 2. Jest latwiejsza do przetestowania i utrzymania
+> 3. Moze ewoluowac niezaleznie

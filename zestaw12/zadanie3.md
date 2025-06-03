@@ -91,14 +91,13 @@ int main(){
 
 **Zalety:**
 
-* Elastyczne rozszerzanie funkcjonalności
+* Elastyczne rozszerzanie funkcjonalności(usuwanie/dodawanie nowych funckjonalnosci w trakcie dzialania programu)
 * Unikanie wykładniczego wzrostu liczby klas
 * Możliwość łączenia wielu dekoratorów dynamicznie
 
 **Wady:**
 
+* Poniewaz dekoratory układają się w stos, trudne może być usunięcie środkowej funckjonalności
+* Kolejność wykonania w dekaratorzy zalezy od kolejnosci na stosie
 * Może prowadzić do wielu małych klas
-* Zwiększona złożoność debugowania
-
-**Podsumowanie:**
-Wzorzec Dekorator pozwala dynamicznie rozbudowywać zachowanie obiektów bez modyfikowania istniejącego kodu. Jest szczególnie przydatny, gdy potrzebujemy elastycznego systemu modyfikacji funkcjonalności w czasie działania aplikacji.
+* Zwiększona złożoność debugowania(troche trudno sie na to patrzy momentami, ale moze to tylka ja)

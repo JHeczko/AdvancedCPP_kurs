@@ -1,8 +1,7 @@
 # Visitor
-**Wzorzec projektowy Visitor (Odwiedzający) w C++**
-
 **Opis i funkcja wzorca:**
-Visitor (Odwiedzający) to wzorzec projektowy, który umożliwia dodanie nowych operacji do zbioru klas bez modyfikowania ich kodu. Działa poprzez oddzielenie algorytmu (odwiedzającego) od struktury obiektów, które są odwiedzane.
+Jest to behawioralny wzorzec projektowy, który oddziela operacje na obiektach od samych obiektów. Algorytmy dzialaja w sepracji od obiektow na ktorcyh pracuja
+
 
 **Zastosowanie i problemy, które rozwiązuje:**
 
@@ -16,103 +15,81 @@ Visitor (Odwiedzający) to wzorzec projektowy, który umożliwia dodanie nowych 
 * Generowanie raportów, eksport danych
 * Walidacja lub analiza danych
 
-**Struktura UML:**
-
-* `Visitor` – interfejs odwiedzającego (zawiera metody visit dla różnych typów)
-* `ConcreteVisitor` – konkretna implementacja odwiedzającego
-* `Element` – interfejs dla odwiedzanych obiektów (z metodą accept)
-* `ConcreteElement` – konkretne klasy akceptujące odwiedzającego
-
 **Implementacja w C++:**
 
 ```cpp
-#include <iostream>
-#include <vector>
-#include <memory>
 
-// Przód: klasy odwiedzające
-class Circle;
-class Rectangle;
-
-class Visitor {
-public:
-    virtual void visit(Circle& circle) = 0;
-    virtual void visit(Rectangle& rectangle) = 0;
-    virtual ~Visitor() = default;
-};
-
-// Element – interfejs dla odwiedzanych obiektów
-class Shape {
-public:
-    virtual void accept(Visitor& visitor) = 0;
-    virtual ~Shape() = default;
-};
-
-// Konkretne klasy
-class Circle : public Shape {
-public:
-    void accept(Visitor& visitor) override {
-        visitor.visit(*this);
-    }
-    void draw() const {
-        std::cout << "Rysowanie koła\n";
-    }
-};
-
-class Rectangle : public Shape {
-public:
-    void accept(Visitor& visitor) override {
-        visitor.visit(*this);
-    }
-    void draw() const {
-        std::cout << "Rysowanie prostokąta\n";
-    }
-};
-
-// Konkretna operacja – np. eksport do SVG
-class ExportVisitor : public Visitor {
-public:
-    void visit(Circle& circle) override {
-        std::cout << "Eksportowanie koła do SVG\n";
-    }
-
-    void visit(Rectangle& rectangle) override {
-        std::cout << "Eksportowanie prostokąta do SVG\n";
-    }
-};
-
-// Przykład użycia
-int main() {
-    std::vector<std::shared_ptr<Shape>> shapes;
-    shapes.push_back(std::make_shared<Circle>());
-    shapes.push_back(std::make_shared<Rectangle>());
-
-    ExportVisitor exporter;
-
-    for (auto& shape : shapes) {
-        shape->accept(exporter);
-    }
-
-    return 0;
-}
 ```
-
-**Wyjaśnienie działania:**
-
-* `Visitor` definiuje operacje dla różnych typów `Shape`
-* `Circle` i `Rectangle` implementują `accept`, które deleguje wywołanie do odpowiedniej metody `visit`
-* Dzięki temu można dodać np. eksport do PDF, logowanie, analizę bez zmieniania kodu `Shape`
 
 **Zalety:**
 
-* Łatwe dodawanie nowych operacji bez modyfikacji klas
-* Oddzielenie struktury danych od logiki operacyjnej
-* Czytelny sposób na obsługę wielu typów bez `dynamic_cast`
+* Zachowanie zasady otwarte/zamkniete, bo pozwala dodawac funckjonalnoc do obiektow roznych klas bez zmiany tych klas(jest metoda accept, ale on jest trywialna)
+* Zasada pojedynczej odpowiedzalnosc, wiele roznych wersji jednego zachowania w jednej klasie(generator xml na przyklad)
+* Pomaga zebrac informacje o roznych obiektach
 
 **Wady:**
 
-* Trudniej dodawać nowe typy elementów (konieczność modyfikacji `Visitor`)
-* Może być nadmiarowy w prostych przypadkach
+* Trzeba aktualizowac odwiedzajacych, za kazdym razem jak dodamy nowa klase, z ktorej odwiedzajacy ma korzystac
+* czasami brak dostepu do prywatncyh skladowych klasy przez odwiedzajacyh
 
-**Podsumowanie:**
-Wzorzec Visitor pozwala dodawać operacje do grupy klas bez ingerencji w ich implementację. Ułatwia utrzymanie i rozwijanie systemu, gdy często zmieniają się operacje, a nie struktura danych.
+> [!NOTE] Zasada otwarte/zamkniete
+> Oznacza mniej wiecej tyle, ze obiekty klas powinny byc otwarte na rozszerzenia, a zamkniete na modyfikacje. Innymi słowy: powinniśmy móc dodać nowe zachowania bez zmieniania istniejącego kodu. Anty przykładem może być coś takiego:
+> ```c++
+> class Shape {
+> public:
+>     virtual string getType() = 0;
+> };
+> 
+> class Circle : public Shape {
+> public:
+>     string getType() override { return "circle"; }
+> };
+> 
+> class Rectangle : public Shape {
+> public:
+>     string getType() override { return "rectangle"; }
+> };
+> 
+> class AreaCalculator {
+> public:
+>     double calculate(Shape* shape) {
+>         if (shape->getType() == "circle") {
+>             // oblicz pole koła
+>         } else if (shape->getType() == "rectangle") {
+>             // oblicz pole prostokąta
+>         }
+>         // musimy modyfikować za każdym razem, gdy dodamy nowy typ figury
+>     }
+> };
+> ```
+> Zamiast tego dobrym rozwiazaniem, ktore zachowuje te zasade jest
+> ```c++
+>> class Shape {
+> public:
+>     virtual double area() = 0;
+>     virtual ~Shape() = default;
+> };
+> 
+> class Circle : public Shape {
+> private:
+>     double radius;
+> public:
+>     Circle(double r) : radius(r) {}
+>     double area() override { return 3.14 * radius * radius; }
+> };
+> 
+> class Rectangle : public Shape {
+> private:
+>     double width, height;
+> public:
+>     Rectangle(double w, double h) : width(w), height(h) {}
+>     double area() override { return width * height; }
+> };
+> 
+> class AreaCalculator {
+> public:
+>     double calculate(Shape* shape) {
+>         return shape->area();
+>     }
+> };
+> ```

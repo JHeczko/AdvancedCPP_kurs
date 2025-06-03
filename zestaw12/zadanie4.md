@@ -1,8 +1,6 @@
 # Adapter
-**Wzorzec projektowy Adapter w C++**
-
 **Opis i funkcja wzorca:**
-Wzorzec projektowy Adapter (ang. Adapter Pattern) umożliwia współpracę klas, których interfejsy są niekompatybilne. Adapter działa jak tłumacz: opakowuje istniejący obiekt i udostępnia nowy interfejs oczekiwany przez klienta.
+Strukturalny wzorzec obiektowy, który pozwala na integracje współdzałania dwóch obiektów ze sobą, nawet jeśli ich interfejsy są ze sobą niekompatybilne. Istotnie adapter zawsze dopasowuje stare klasy z nowymi. 
 
 **Zastosowanie i problemy, które rozwiązuje:**
 
@@ -12,78 +10,93 @@ Wzorzec projektowy Adapter (ang. Adapter Pattern) umożliwia współpracę klas,
 
 **Typowe przypadki użycia:**
 
-* Integracja bibliotek zewnętrznych
+* Integracja bibliotek zewnętrznych lub niepasujacych do siebie komponentow
 * Refaktoryzacja kodu z zachowaniem kompatybilności
-
-**Struktura UML:**
-
-* `Target` – interfejs oczekiwany przez klienta
-* `Adaptee` – istniejąca klasa o niekompatybilnym interfejsie
-* `Adapter` – dostosowuje `Adaptee` do `Target`
 
 **Implementacja w C++ (przystosowanie klasy z innym interfejsem):**
 
-```cpp
+```c++
 #include <iostream>
-#include <memory>
 
-// Interfejs oczekiwany przez klienta
-class ITarget {
-public:
-    virtual void request() = 0;
-    virtual ~ITarget() = default;
-};
+using namespace std;
 
-// Klasa z istniejącą funkcjonalnością, ale innym interfejsem
-class Adaptee {
-public:
-    void specificRequest() {
-        std::cout << "[Adaptee] Specyficzna metoda została wywołana.\n";
+class Square{
+  private:
+    float side;
+  public:
+    Square(float side):side(side){}
+
+    float get_side(){
+      return side;
     }
 };
 
-// Adapter dostosowuje Adaptee do ITarget
-class Adapter : public ITarget {
-public:
-    Adapter(std::shared_ptr<Adaptee> adaptee) : adaptee(adaptee) {}
-
-    void request() override {
-        std::cout << "[Adapter] Tłumaczenie request() na specificRequest()...\n";
-        adaptee->specificRequest();
-    }
-
+class Circle{
 private:
-    std::shared_ptr<Adaptee> adaptee;
+  float radius;
+public:
+  Circle(float radius):radius(radius){}
+
+  virtual float get_radius(){
+    return radius;
+  };
+
 };
 
-// Przykład użycia
+
+class Hole{
+  protected:
+    float radius;
+  public:
+    Hole(float radius):radius(radius){};
+
+    bool fits(Circle* c){
+      cout << c->get_radius() << endl;
+      return true ? c->get_radius()<=radius : false;
+    };
+};
+/*
+ * Tutaj pojawia sie problem, bo nie mozemy sprawdzic czy kwadrat zmiesci sie do dziury, jesli podamy
+ * tylko dlugosc boku, trzeba sprawdzic, pol przekatnej, wiec robimy klase adapter
+* */
+
+class SquareAdapter:public Circle{
+private:
+  Square* square;
+public:
+    SquareAdapter(Square* s):square(s),Circle(0){};
+
+    float get_radius() override{
+      return square->get_side() * sqrt(2) / 2;
+    };
+};
+
 int main() {
-    std::shared_ptr<Adaptee> adaptee = std::make_shared<Adaptee>();
-    std::shared_ptr<ITarget> adapter = std::make_shared<Adapter>(adaptee);
+  Circle* small_circle = new Circle(5);
+  Circle* big_circle = new Circle(40);
 
-    // Klient korzysta z interfejsu ITarget, nie znając Adaptee
-    adapter->request();
+  Square* small_square = new Square(5);
+  Square* big_square = new Square(40);
 
-    return 0;
+  SquareAdapter* small_square_Adapter = new SquareAdapter(small_square);
+  SquareAdapter* big_square_Adapter = new SquareAdapter(big_square);
+
+  Hole hole(5);
+
+  cout << "Small circle fits: " << hole.fits(small_circle) << endl;
+  cout << "Big circle fits: " << hole.fits(big_circle) << endl;
+  cout << "Small Adapter fits: " << hole.fits(small_square_Adapter) << endl;
+  cout << "Big Adapter fits: " << hole.fits(big_square_Adapter) << endl;
 }
 ```
 
-**Wyjaśnienie działania:**
-
-* `ITarget` to interfejs używany przez klienta.
-* `Adaptee` to istniejąca klasa o innym interfejsie.
-* `Adapter` opakowuje `Adaptee` i dostosowuje jej metody do interfejsu `ITarget`.
-
 **Zalety:**
 
-* Umożliwia ponowne użycie istniejących klas bez ich modyfikacji
-* Rozdziela kod klienta od szczegółów implementacyjnych
-* Może być używany z kompozycją lub dziedziczeniem
+* Zasada pojedynczje odpoweidzalnosci, co oznacza, ze logika biznesowa(ta glowna), jest odzielona od tej konwertujacej
+* Dodatkowo zasada zamkniete/otwarte, ktora sprawia, ze nie wprowadzamy zmian w kodzie klienckim, wiec mozemy dowolnie wprowadzac nowe typy adapterow, bez przypadkowego popsucia kodu.
 
 **Wady:**
 
 * Wprowadza dodatkową warstwę pośrednią
-* Może zwiększyć złożoność systemu, jeśli nadużywany
+* Może zwiększyć złożoność systemu, jeśli nadużywany(czasami prosciej zmienic klase, aby pasowala do reszty kodu, bo zmiany sa male)
 
-**Podsumowanie:**
-Wzorzec Adapter pozwala łączyć niekompatybilne klasy przez udostępnienie nowego interfejsu. Jest szczególnie przydatny podczas integracji starszego kodu lub bibliotek z nowymi aplikacjami bez potrzeby ich modyfikacji.
